@@ -1,198 +1,118 @@
-# AI-FraudShield
+# AI-FRAUDSHIELD
 
-## Overview
+An enterprise-grade, real-time **AI-Powered UPI Fraud Detection and Risk Intelligence Auditing Terminal**. The UI design features a premium, sleek charcoal theme inspired by Stripe, Ramp, and high-end fintech dashboards, powered by an optimized machine learning pipeline (XGBoost) to evaluate transaction risk markers dynamically.
 
-AI-FraudShield is a machine learning-based fraud detection system developed to identify suspicious financial transactions. The project uses the PaySim dataset and an XGBoost classifier to distinguish fraudulent transactions from legitimate ones through feature engineering and supervised learning.
+---
+
+## Technical Features
+
+1. **Intelligent Forensic Dashboard**: 
+   - Dynamic KPI metric counters (Scored Ledger Rows, Fraud Flagged Count, Average Risk Level, Protected Capital).
+   - Natural language risk summaries generated dynamically.
+   - Registry Search bar to instantly filter the transaction ledger by customer account, transaction ID, bank, or location.
+   
+2. **Transaction Scanner**:
+   - A real-time transaction testing suite displaying Sender parameters, Receiver parameters, and transaction details concurrently.
+   - Quick Preset Templates to simulate specific threat scenarios (Low-Risk P2P, Account Takeover Drain, and Rapid Cash-Out).
+   - Balance auto-calculation verification and parameter validation checklist.
+
+3. **Active Fraud Monitoring**:
+   - Dynamic alert queues. Clicking "Approve" or "Block" performs active database overrides, logs actions to the history ledger, and triggers success notifications.
+
+4. **Forensic Analytics**:
+   - Plotly timeline trends, a weekly fraud density activity heatmap, and transaction method risk distributions.
+
+5. **Risk Assessment Map**:
+   - An interactive Plotly `Scattergeo` projection centered on India coordinates displaying metro hotspot bubbles, alert severity levels, and regional recovery summaries.
+
+6. **Investigation Center (Bulk Upload)**:
+   - Spreadsheet auditing tool allowing users to upload transaction CSVs, map column headers, and execute batch model predictions with exportable scored outputs.
+
+7. **Exportable Reports**:
+   - Executive TXT summaries and detailed CSV ledgers generated dynamically in-memory for download.
 
 ---
 
 ## Project Structure
 
-```
+```text
 AI-FraudShield/
-│
+├── .streamlit/
+│   └── config.toml             # Native Streamlit dark-mode configuration
 ├── data/
-│   ├── PaySim/                  # Original dataset (not tracked by Git)
-│   └── processed_paysim.csv     # Processed dataset (ignored by Git)
-│
+│   └── archive/
+│       └── PS_20174392719_1491204439457_log.csv # Kaggle PaySim dataset (470MB)
 ├── models/
-│   ├── xgboost_model.pkl
-│   ├── feature_columns.pkl
-│   └── label_encoder.pkl
-│
-├── notebooks/
-│   └── EDA.ipynb
-│
+│   ├── xgboost_model.pkl       # Trained XGBoost classifier
+│   ├── label_encoder.pkl       # Encoders for payment categories
+│   └── feature_columns.pkl     # Feature array baselines
 ├── src/
-│   ├── preprocessing.py
-│   ├── train_model.py
-│   ├── evaluate_model.py
-│   └── predict_model.py
-│
-├── README.md
-└── requirements.txt
+│   ├── api.py                  # FastAPI high-performance inference engine
+│   └── train.py                # Model training/evaluation scripts
+├── dashboard.py                # Auditing Terminal main entry point
+├── bulk_test_transactions.csv  # Pre-generated template for testing bulk uploads
+└── README.md                   # System documentation
 ```
 
 ---
 
-## Dataset
+## Setup & Local Installation
 
-Dataset Used: **PaySim Mobile Money Transaction Dataset**
+### Prerequisites
+- Python 3.10 or higher
+- Streamlit and FastAPI installed in a virtual environment
 
-The dataset contains simulated mobile money transactions with both legitimate and fraudulent transactions.
-
-Original Dataset Columns:
-
-- step
-- type
-- amount
-- nameOrig
-- oldbalanceOrg
-- newbalanceOrig
-- nameDest
-- oldbalanceDest
-- newbalanceDest
-- isFraud
-- isFlaggedFraud
-
----
-
-## Feature Engineering
-
-The following features were created to improve fraud detection:
-
-| Feature | Description |
-|---------|-------------|
-| balance_change_sender | Difference between sender's old and new balance |
-| balance_change_receiver | Difference between receiver's new and old balance |
-| high_amount_flag | Indicates transactions greater than ₹200,000 |
-| is_cashout_or_transfer | Flags CASH_OUT and TRANSFER transactions |
-| zero_sender_balance_after | Checks if sender's balance becomes zero |
-| zero_receiver_balance_before | Checks if receiver initially had zero balance |
-
----
-
-## Model
-
-Algorithm Used:
-
-- XGBoost Classifier
-
-The trained model is stored in:
-
-```
-models/xgboost_model.pkl
-```
-
----
-
-## Project Workflow
-
-1. Load PaySim dataset
-2. Perform Exploratory Data Analysis (EDA)
-3. Clean and preprocess the data
-4. Perform feature engineering
-5. Encode categorical variables
-6. Train the XGBoost model
-7. Evaluate model performance
-8. Save trained model
-9. Predict fraud on new transactions
-
----
-
-## Files
-
-### preprocessing.py
-
-- Loads dataset
-- Performs feature engineering
-- Encodes transaction type
-- Saves processed dataset
-
-### train_model.py
-
-- Loads processed dataset
-- Splits training and testing data
-- Trains XGBoost model
-- Saves trained model and feature information
-
-### evaluate_model.py
-
-- Loads trained model
-- Evaluates model performance
-- Displays classification report
-- Displays confusion matrix
-- Calculates ROC-AUC score
-
-### predict_model.py
-
-- Loads saved model
-- Accepts transaction details
-- Predicts fraud probability
-- Displays transaction status
-
----
-
-## Requirements
-
-Install dependencies using:
-
+### 1. Set Up Virtual Environment & Dependencies
+Navigate to your project root folder and execute:
 ```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# On Windows (PowerShell):
+.\venv\Scripts\Activate.ps1
+# On macOS/Linux:
+source venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
+*(If a requirements.txt is not yet generated, install packages manually)*:
+```bash
+pip install streamlit fastapi uvicorn pandas numpy scikit-learn xgboost plotly joblib requests
+```
+
+### 2. Start the FastAPI Backend
+Start the high-performance inference API:
+```bash
+uvicorn src.api:app --reload
+```
+- API will start at **http://127.0.0.1:8000**
+- View automatic API docs at **http://127.0.0.1:8000/docs**
+
+### 3. Start the Streamlit Auditing Terminal
+In a separate terminal window with your virtual environment active, run:
+```bash
+streamlit run dashboard.py
+```
+- The dashboard will open in your web browser at **http://localhost:8501**
 
 ---
 
-## How to Run
+## System Verification & Testing Guide
 
-### Step 1
+### 1. Seeding Data
+On startup, the system searches the `data/` directory for the Kaggle PaySim dataset, reads the first 50 rows, and scores them using the local XGBoost model. This dynamic data populates all statistics and charts immediately on boot.
 
-```bash
-python src/preprocessing.py
-```
+### 2. Testing the Scanner Presets
+- Navigate to the **Transaction Scanner** page.
+- Click **Scenario 2: Account Takeover Drain** to load the preset.
+- All columns (Sender, Receiver, Details) will fill with coordinates.
+- Click **Execute AI Fraud Scan** to evaluate parameters against the model and view risk scores and baselines.
+- Modify any value in the form; the dirty indicator badge will display a warning indicating parameters are modified. Re-run to update the verdict.
 
-### Step 2
-
-```bash
-python src/train_model.py
-```
-
-### Step 3
-
-```bash
-python src/evaluate_model.py
-```
-
-### Step 4
-
-```bash
-python src/predict_model.py
-```
-
----
-
-## Sample Output
-
-```
-Prediction Result
-
-Transaction Status : LEGITIMATE
-
-Fraud Probability : 22.65%
-```
-
----
-
-## Future Improvements
-
-- SHAP-based model explainability
-- Real-time fraud detection using FastAPI
-- Interactive Streamlit dashboard
-- Ensemble model comparison
-- API integration for deployment
-
----
-
-## Team
-
-Developed as part of the AI-FraudShield project.
+### 3. Testing Bulk spreadsheet scoring
+- Navigate to the **Investigation Center**.
+- Click **Browse files** and upload the pre-generated [bulk_test_transactions.csv](bulk_test_transactions.csv) file from the project root.
+- Match variables in the column mapping panel and click **Score Spreadsheet Rows**.
+- Confirm that distributions, scored values, and the flagged list update dynamically, and download the final scored output sheet.
